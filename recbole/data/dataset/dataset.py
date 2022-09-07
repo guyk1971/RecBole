@@ -243,6 +243,7 @@ class Dataset:
             dataset_path (str): path of dataset dir.
         """
         if not os.path.exists(dataset_path):
+            self.logger.info(f'couldnt find file in {dataset_path}. trying to download')
             self._download()
         self._load_inter_feat(token, dataset_path)
         self.user_feat = self._load_user_or_item_feat(token, dataset_path, FeatureSource.USER, 'uid_field')

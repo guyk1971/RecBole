@@ -1,0 +1,76 @@
+# Environment settings
+gpuid: 0 # The id of available GPU device(s). Defaults to 0.
+worker: 0 #  The number of workers processing the data. Defaults to 0.
+seed: 2020  # random seed
+state: 'INFO' # Logging level . range in ['INFO', 'DEBUG', 'WARNING', 'ERROR', 'CRITICAL']
+encoding: 'utf-8' # Encoding to use for reading atomic files
+reproducibility: True
+data_path: 'dataset/'
+checkpoint_dir: 'saved/'
+show_progress: True  # Whether or not to show the progress bar of training and evaluation epochs.
+save_dataset: False # Whether or not to save filtered dataset
+dataset_save_path: Null
+shuffle: True # Whether or not to shuffle the training data before each epoch
+#########################
+# Data settings
+# common
+USER_ID_FIELD: user_id
+ITEM_ID_FIELD: item_id
+RATING_FIELD: rating
+TIME_FIELD: timestamp
+seq_len: Null  # (dict) Keys are field names of sequence features, values are maximum length of each sequence (which means too long sequences will be cut off). If not set, the sequences will not be cut off.
+LABEL_FIELD: label
+neg_sampling: None
+# sequential model
+ITEM_LIST_LENGTH_FIELD: item_length # (str)
+LIST_SUFFIX: _list
+MAX_ITEM_LIST_LENGTH: 50
+
+# Filtering
+user_inter_num_interval: [0,inf]  # Users whose number of interactions is in the interval will be retained.
+item_inter_num_interval: [0,inf]
+
+# preprocessing
+normalize_field: Null
+normalize_all: Null
+
+# model config
+embedding_size: 64
+hidden_size: 128
+num_layers: 1
+dropout_prob: 0.3
+
+
+##########################
+# training
+epochs: 300
+train_batch_size: 2048
+learner: 'adam'
+learning_rate: 0.001
+train_neg_sample_args:
+  distribution: uniform
+  sample_num: 1
+  dynamic: False
+  candidate_num: 0
+eval_step: 1
+stopping_step: 10
+loss_decimal_place: 4
+weight_decay: 0.0
+require_pow: False
+
+###########################
+#evaluation
+eval_args:
+  group_by: user
+  order: TO
+  split:
+    RS: [0.8,0.1,0.1]
+  mode: full
+metrics: ['Recall','MRR','NDCG','Hit','Precision']
+topk: 10
+valid_metric: 'MRR@10'
+eval_batch_size: 4096
+metric_decimal_place: 4
+
+
+
