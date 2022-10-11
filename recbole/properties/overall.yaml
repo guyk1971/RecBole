@@ -1,4 +1,4 @@
-# general
+# general : see https://recbole.io/docs/user_guide/config/environment_settings.html
 gpu_id: 0
 use_gpu: True
 seed: 2020
@@ -14,7 +14,7 @@ dataloaders_save_path: ~
 log_wandb: False
 wandb_project: 'recbole'
 
-# training settings
+# training settings: see https://recbole.io/docs/user_guide/config/training_settings.html 
 epochs: 300
 train_batch_size: 2048
 learner: adam
@@ -29,7 +29,7 @@ weight_decay: 0.0
 loss_decimal_place: 4
 require_pow: False
 
-# evaluation settings
+# evaluation settings: see https://recbole.io/docs/user_guide/config/evaluation_settings.html
 eval_args: 
   split: {'RS':[0.8,0.1,0.1]}
   group_by: user

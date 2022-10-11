@@ -28,8 +28,9 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', '-m', type=str, default='GRU4Rec', help='Model for session-based rec.')
     # parser.add_argument('--dataset', '-d', type=str, default='diginetica-session', help='Benchmarks for session-based rec.')
-    parser.add_argument('--dataset', '-d', type=str, default='diginetica-sess', help='Benchmarks for session-based rec.')
-    parser.add_argument('--gpu_id', type=int,default=0,help='gpu id [starting from 0]')
+    # parser.add_argument('--dataset', '-d', type=str, default='diginetica-sess', help='Benchmarks for session-based rec.')
+    parser.add_argument('--dataset', '-d', type=str, default='retailrocket-sess', help='Benchmarks for session-based rec.')
+    parser.add_argument('--gpu_id', '-gpu',type=int,default=0,help='gpu id [starting from 0]')
     parser.add_argument('--validation', action='store_true', help='Whether evaluating on validation set (split from train set), otherwise on test set.')
     parser.add_argument('--valid_portion', type=float, default=0.1, help='ratio of validation set.')
     return parser.parse_known_args()[0]
@@ -46,9 +47,12 @@ if __name__ == '__main__':
         'benchmark_filename': ['train', 'test'],
         'alias_of_item_id': ['item_id_list'],
         'topk': [20],
-        'metrics': ['Recall', 'MRR'],
+        'metrics': ['Recall', 'MRR','Hit','NDCG'],
         'valid_metric': 'MRR@20',
-        'gpu_id':args.gpu_id
+        'stopping_step': 50,
+        'gpu_id':args.gpu_id,
+        'train_batch_size':1024,
+        'eval_batch_size': 2048
     }
 
     config = Config(model=args.model, dataset=f'{args.dataset}', config_dict=config_dict)

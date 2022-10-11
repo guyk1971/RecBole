@@ -1,3 +1,4 @@
+# see https://recbole.io/docs/user_guide/model/sequential/sasrec.html for explanation
 n_layers: 2
 n_heads: 2
 hidden_size: 64

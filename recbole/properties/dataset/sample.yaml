@@ -1,3 +1,4 @@
+# for more details, see https://recbole.io/docs/user_guide/config/data_settings.html
 # Atomic File Format
 field_separator: "\t"
 seq_separator: " "
