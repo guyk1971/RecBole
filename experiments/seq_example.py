@@ -12,7 +12,7 @@ args.dataset can be one of: amazon-beauty,ml-1m,steam
 
 import argparse
 from logging import getLogger
-
+import yaml 
 from recbole.config import Config
 from recbole.data import create_dataset
 from recbole.data.utils import get_dataloader
@@ -24,9 +24,10 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', '-m', type=str, default='SASRec', help='Model for sequential rec.')
     parser.add_argument('--dataset', '-d', type=str, default='Amazon_Beauty', help='Benchmarks for sequential rec.')
+    parser.add_argument('--config_yaml', '-yml', type=str, help='configuration yaml')
     parser.add_argument('--gpu_id', '-gpu',type=int,default=0,help='gpu id [starting from 0]')
-    parser.add_argument('--batch_size_val', '-bv',type=int,default=4096,help='batch size of validation and test set')
-    parser.add_argument('--batch_size_train', '-bt',type=int,default=2048,help='batch size of training set')
+    parser.add_argument('--batch_size_val', '-bv',type=int,help='batch size of validation and test set')
+    parser.add_argument('--batch_size_train', '-bt',type=int,help='batch size of training set')
     parser.add_argument('--validation', action='store_true', help='Whether evaluating on validation set (split from train set), otherwise on test set.')
     parser.add_argument('--valid_portion', type=float, default=0.1, help='ratio of validation set.')
     return parser.parse_known_args()[0]
@@ -35,7 +36,8 @@ def build_configuration(args):
     # configurations initialization
     # for all possible parameters with their default values see recbole/properties/overall.yaml
     # some of the configurations below were inspired by recbole/properties/dataset/sample.yaml
-    config_dict = {
+
+    default_seq_config_dict = {
         ############################
         # Environment settings - see https://recbole.io/docs/user_guide/config/environment_settings.html
         # see default values in recbole/properties/overall.yaml
@@ -84,7 +86,6 @@ def build_configuration(args):
         # 'POSITION_FIELD': 'position_id',
 
         # Selectively Loading
-        # Selectively Loading
         # 'load_col': {'inter': ['user_id', 'item_id']},
         'load_col': {'inter': ['user_id', 'item_id', 'rating', 'timestamp']},
         # 'unload_col': None,
@@ -117,7 +118,7 @@ def build_configuration(args):
         # see default values in recbole/properties/overall.yaml
         # defaults are commented out
         # 'epochs': 300,
-        'train_batch_size': args.batch_size_train,   # was 2048
+        'train_batch_size': 2048,   # was 2048
         # 'learner': 'adam',
         # 'learning_rate': 0.001,
         'neg_sampling': None,
@@ -145,9 +146,22 @@ def build_configuration(args):
         'topk': [1,5,10],
         'valid_metric': 'Hit@5',
         # 'valid_metric_bigger': True,
-        'eval_batch_size': args.batch_size_val,
+        'eval_batch_size': 4096
         # 'metric_decimal_place': 4       
     }
+    try:
+        with open(args.config_yaml) as f:
+            config_dict = yaml.safe_load(f)
+    except:
+        config_dict=default_seq_config_dict
+        
+    # override with cmd line 
+    config_dict['gpu_id'] = args.gpu_id
+    if args.batch_size_train:
+        config_dict['train_batch_size'] = args.batch_size_train
+    if args.batch_size_val:
+        config_dict['eval_batch_size'] = args.batch_size_val
+
     config = Config(model=args.model, dataset=f'{args.dataset}', config_dict=config_dict)    
     return config
 

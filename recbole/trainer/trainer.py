@@ -341,7 +341,7 @@ class Trainer(AbstractTrainer):
                 self.logger.info(train_loss_output)
             self._add_train_loss_to_tensorboard(epoch_idx, train_loss)
             self.wandblogger.log_metrics({'epoch': epoch_idx, 'train_loss': train_loss, 'train_step':epoch_idx}, head='train')
-
+            torch.cuda.empty_cache()
             # eval
             if self.eval_step <= 0 or not valid_data:
                 if saved:
@@ -384,6 +384,7 @@ class Trainer(AbstractTrainer):
                     break
 
                 valid_step+=1
+            torch.cuda.empty_cache()
 
         self._add_hparam_to_tensorboard(self.best_valid_score)
         return self.best_valid_score, self.best_valid_result

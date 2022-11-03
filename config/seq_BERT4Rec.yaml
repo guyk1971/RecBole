@@ -1,0 +1,109 @@
+# Environment settings. 
+# see https://recbole.io/docs/user_guide/config/environment_settings.html
+# see default values in recbole/properties/overall.yaml
+gpu_id: 0 # The id of available GPU device(s). Defaults to 0.
+use_gpu: True,
+worker: 0 #  The number of workers processing the data. Defaults to 0.
+seed: 2020  # random seed
+state: 'INFO' # Logging level . range in ['INFO', 'DEBUG', 'WARNING', 'ERROR', 'CRITICAL']
+encoding: 'utf-8' # Encoding to use for reading atomic files
+reproducibility: True
+data_path: 'dataset/'
+checkpoint_dir: 'saved/'
+show_progress: True  # Whether or not to show the progress bar of training and evaluation epochs.
+save_dataset: False # Whether or not to save filtered dataset
+dataset_save_path: Null
+shuffle: True # Whether or not to shuffle the training data before each epoch
+log_wandb: False
+wandb_project: 'recbole'
+
+############################
+# Model Settings
+# model architecture parameters: see https://recbole.io/docs/user_guide/model/sequential/sasrec.html or relevant algorithm
+# the below setup for BERT4Rec is taken from recbole/properties/model/BERT4Rec.yaml
+n_layers: 2
+n_heads: 2
+hidden_size: 64
+inner_size: 256
+hidden_dropout_prob: 0.5
+attn_dropout_prob: 0.5
+hidden_act: 'gelu'
+layer_norm_eps: 1.0e-12
+initializer_range: 0.02
+mask_ratio: 0.2
+loss_type: 'CE'
+#########################
+# Data Settings - dataset basic information and preprocessing
+# see https://recbole.io/docs/user_guide/config/data_settings.html for details
+# see default values in recbole/properties/dataset/sample.yaml
+# in teh following, only settings that are relevant to sequential model are added:
+# common
+USER_ID_FIELD: user_id
+ITEM_ID_FIELD: item_id
+RATING_FIELD: rating
+TIME_FIELD: timestamp
+# seq_len: Null  # (dict) Keys are field names of sequence features, values are maximum length of each sequence (which means too long sequences will be cut off). If not set, the sequences will not be cut off.
+# LABEL_FIELD: label
+# neg_sampling: Null
+# sequential model
+ITEM_LIST_LENGTH_FIELD: item_length # (str)
+LIST_SUFFIX: _list
+MAX_ITEM_LIST_LENGTH: 50
+POSITION_FIELD: position_id
+
+# Selectively Loading
+load_col: {'inter': ['user_id', 'item_id', 'rating', 'timestamp']}
+unload_col: Null
+unused_col: Null
+additional_feat_suffix: Null
+
+# Filtering
+user_inter_num_interval: [5,.inf]  # Users whose number of interactions is in the interval will be retained.
+item_inter_num_interval: [0,.inf]
+
+# preprocessing
+normalize_field: Null
+normalize_all: Null
+
+##########################
+# Training settings - see https://recbole.io/docs/user_guide/config/training_settings.html
+# see default values in recbole/properties/overall.yaml
+
+epochs: 300
+train_batch_size: 512
+learner: 'adam'
+learning_rate: 0.001
+neg_sampling: Null
+# train_neg_sample_args:
+#   distribution: uniform
+#   sample_num: 1
+#   dynamic: False
+#   candidate_num: 0
+eval_step: 1
+stopping_step: 50
+# clip_grad_norm:
+#   max_norm: 5
+#   norm_type: 2
+loss_decimal_place: 4
+weight_decay: 0.0
+require_pow: False
+
+###########################
+# Evaluation settings - see https://recbole.io/docs/user_guide/config/evaluation_settings.html
+# see default values in recbole/properties/overall.yaml
+eval_args:
+  # group_by: user
+  order: TO
+  split:
+    LS: 'valid_and_test'
+  mode: 'pop100'
+repeatable: True
+metrics: ['MRR','NDCG','Hit']
+topk: [1,5,10]
+valid_metric: 'Hit@5'
+valid_metric_bigger: True
+eval_batch_size: 4096
+metric_decimal_place: 4
+
+
+
