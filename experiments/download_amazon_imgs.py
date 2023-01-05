@@ -18,9 +18,15 @@ def load_data(meta_file_name):
         df=pd.read_csv(cached_filename)
     else:
         data=[]
-        with gzip.open(meta_file_name) as f:
-            for l in tqdm(f):
-                data.append(json.loads(l.strip()))
+        if os.path.splitext(meta_file_name)[-1] == '.gz':
+            f = gzip.open(meta_file_name)
+        else:
+            f = open(meta_file_name)
+
+        for l in tqdm(f):
+            data.append(json.loads(l.strip()))
+        f.close()
+
         df = pd.DataFrame.from_dict(data)
         df.to_csv(cached_filename,index=False)
     return df 
@@ -43,7 +49,7 @@ def runcmd(cmd, verbose = False, *args, **kwargs):
 
 def get_img(save_dir,url):
     # wget.download(url,save_dir)
-    print(url)
+    # print(url)
     cmd=f'wget -P {dirname} {url}'
     runcmd(cmd)
 
@@ -55,15 +61,17 @@ def get_img(save_dir,url):
 
 
 if __name__=='__main__':
-    meta_file_name = 'meta_Clothing_Shoes_and_Jewelry.json.gz'
+    # meta_file_name = 'meta_Clothing_Shoes_and_Jewelry.json.gz'
+    meta_file_name = 'meta_AMAZON_FASHION.json'
     print(f'downloading images from {meta_file_name}')
-
-    meta_file =os.path.join(amz_dataset_root, 'meta_Clothing_Shoes_and_Jewelry.json.gz')
+    meta_file =os.path.join(amz_dataset_root, meta_file_name)
+    # meta_file =os.path.join(amz_dataset_root, meta_file_name)
 
     print('loading the links data')
     df = load_data(meta_file)
     print('preparing the url list')
-    url_list = [e for l in df.imageURLHighRes if isinstance(l,list) for e in l ]
+    # url_list = [e for l in df.imageURLHighRes if isinstance(l,list) for e in l ]
+    url_list = [e for l in df.imageURLHighRes.dropna() if isinstance(eval(l), list) for e in eval(l)]
     print(f'there are total of {len(url_list)} images to download')
 
     dirname = os.path.join(amz_dataset_root,os.path.splitext(os.path.basename(meta_file))[0])
@@ -74,7 +82,7 @@ if __name__=='__main__':
 
     n_processes= mp.cpu_count()
     pool = mp.Pool(n_processes)
-    start_idx=1000001
-    end_idx=1500000
+    start_idx=0
+    end_idx=len(url_list)
     print(f'start downloading img index {start_idx} to {end_idx}')
     res = pool.map(get_img_2_dir,[url for url in url_list[start_idx:end_idx]])
