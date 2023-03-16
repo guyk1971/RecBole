@@ -133,11 +133,13 @@ class Interaction(object):
     def __getitem__(self, index):
         if isinstance(index, str):
             return self.interaction[index]
-        else:
-            ret = {}
-            for k in self.interaction:
-                ret[k] = self.interaction[k][index]
-            return Interaction(ret)
+        if isinstance(index, (np.ndarray, torch.Tensor)):
+            index = index.tolist()
+
+        ret = {}
+        for k in self.interaction:
+            ret[k] = self.interaction[k][index]
+        return Interaction(ret)
 
     def __setitem__(self, key, value):
         if not isinstance(key, str):
@@ -344,7 +346,7 @@ class Interaction(object):
                 key = self.interaction[b][..., 0]
             index = np.argsort(key, kind="stable")
             if not a:
-                index = index[::-1]
+                index = torch.tensor(np.array(index)[::-1])
             self._reindex(index)
 
     def add_prefix(self, prefix):
